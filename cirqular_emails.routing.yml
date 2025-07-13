@@ -1,0 +1,7 @@
+cirqular_emails.settings_form:
+  path: '/admin/config/system/cirqular-emails'
+  defaults:
+    _form: '\Drupal\cirqular_emails\Form\SettingsForm'
+    _title: 'Cirqular Email Settings'
+  requirements:
+    _permission: 'administer site configuration'

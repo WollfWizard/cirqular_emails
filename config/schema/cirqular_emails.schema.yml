@@ -1,0 +1,151 @@
+#
+# Defines the schema for the cirqular_emails.settings configuration object.
+#
+# This file provides a data structure blueprint for all configuration managed
+# by the Cirqular Emails module, ensuring data integrity and type consistency.
+#
+cirqular_emails.settings:
+  type: config_object
+  label: 'Cirqular Emails Settings'
+  mapping:
+    # Stores the managed file ID (fid) for the globally uploaded logo.
+    logo:
+      type: sequence
+      label: 'Logo File ID'
+      sequence:
+        type: integer
+    # Stores the full legal name of the company for use in email footers.
+    registered_name:
+      type: string
+      label: 'Registered Name'
+    # Defines the color palette available to all email templates.
+    colors:
+      type: mapping
+      label: 'Colors'
+      mapping:
+        # Primary brand colors.
+        primary_light:
+          type: string
+        primary_regular:
+          type: string
+        primary_dark:
+          type: string
+        # Secondary (accent) brand colors.
+        alternate_light:
+          type: string
+        alternate_regular:
+          type: string
+        alternate_dark:
+          type: string
+        # Standard text colors.
+        text_light:
+          type: string
+        text_regular:
+          type: string
+        text_dark:
+          type: string
+        # Standard system colors for UI feedback (e.g., warnings, success).
+        system_white:
+          type: string
+        system_blue:
+          type: string
+        system_green:
+          type: string
+        system_yellow:
+          type: string
+        system_orange:
+          type: string
+        system_red:
+          type: string
+    # Contains the settings for each individual email override.
+    email_settings:
+      type: mapping
+      label: 'Email-specific Settings'
+      mapping:
+        # System Emails
+        update_notification:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        # TFA Emails
+        tfa_enabled:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        tfa_disabled:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        # Account Emails
+        password_recovery:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        welcome_admin_created:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        welcome_awaiting_approval:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        admin_user_awaiting_approval:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        welcome_no_approval:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        account_activated:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        account_suspended:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        account_cancellation_confirm:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string
+        account_canceled:
+          type: mapping
+          mapping:
+            subject:
+              type: string
+            preview_text:
+              type: string

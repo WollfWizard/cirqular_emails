@@ -1,0 +1,15 @@
+{
+    "name": "cirqular/cirqular_emails",
+    "description": "Provides a UI to manage email branding and overrides core Drupal emails with beautiful, configurable templates.",
+    "type": "drupal-module",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Altitude Media",
+            "homepage": "https://altitudemedia.co.za"
+        }
+    ],
+    "require": {
+        "drupal/core": "^10 || ^11"
+    }
+}

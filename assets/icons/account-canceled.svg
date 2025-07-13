@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 150 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-320,-163)">
+        <g id="account-canceled" transform="matrix(1,0,0,1,320,163)">
+            <rect x="0" y="0" width="150" height="150" style="fill:none;"/>
+            <circle cx="75" cy="75" r="75" style="fill:rgb(217,75,49);"/>
+            <path d="M75,0C116.394,0 150,33.606 150,75C150,116.394 116.394,150 75,150C33.606,150 0,116.394 0,75C0,33.606 33.606,0 75,0ZM75,4.167C35.906,4.167 4.167,35.906 4.167,75C4.167,114.094 35.906,145.833 75,145.833C114.094,145.833 145.833,114.094 145.833,75C145.833,35.906 114.094,4.167 75,4.167Z" style="fill:white;"/>
+            <g transform="matrix(0.0375,0,0,0.0375,75,75)">
+                <g transform="matrix(1,0,0,1,-1066.67,-1066.67)">
+                    <clipPath id="_clip1">
+                        <rect x="0" y="0" width="2133.33" height="2133.33"/>
+                    </clipPath>
+                    <g clip-path="url(#_clip1)">
+                        <g transform="matrix(88.8889,0,0,88.8889,0,0)">
+                            <path d="M17,24C16.451,24 16,23.549 16,23C16,19.16 12.84,16 9,16C5.16,16 2,19.16 2,23C2,23.549 1.549,24 1,24C0.451,24 0,23.549 0,23C-0,18.063 4.063,14 9,14C13.937,14 18,18.063 18,23C18,23.549 17.549,24 17,24ZM23,13L17,13C16.451,13 16,12.549 16,12C16,11.451 16.451,11 17,11L23,11C23.549,11 24,11.451 24,12C24,12.549 23.549,13 23,13ZM9,12C5.708,12 3,9.292 3,6C3,2.708 5.708,0 9,0C12.292,-0 15,2.708 15,6C14.997,9.29 12.29,11.997 9,12ZM9,2C6.806,2 5,3.806 5,6C5,8.194 6.806,10 9,10C11.194,10 13,8.194 13,6C13,3.806 11.194,2 9,2Z" style="fill:white;fill-rule:nonzero;"/>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

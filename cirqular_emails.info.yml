@@ -1,0 +1,6 @@
+name: 'Cirqular Emails'
+type: module
+description: 'Provides a central UI to manage email branding and overrides core Drupal emails with beautiful, configurable HTML templates. Developed by Altitude Media in South Africa.'
+core_version_requirement: ^10 || ^11
+package: 'Cirqular 5'
+configure: cirqular_emails.settings_form

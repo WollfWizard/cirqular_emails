@@ -1,0 +1,293 @@
+<?php
+
+/**
+ * @file
+ * Main module file for the Cirqular Emails module.
+ *
+ * Handles altering emails to inject branding and override templates.
+ */
+
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Render\RenderContext;
+use Drupal\file\Entity\File;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_mail_alter().
+ *
+ * This is the master hook that intercepts all outgoing emails. It first injects
+ * global branding variables and then routes the message to a specific override
+ * function based on the email's unique ID.
+ */
+function cirqular_emails_mail_alter(array &$message) {
+
+  // --- 1. Global Variable Injection ---
+  // This section runs on every email to ensure branding is always available.
+  $config = \Drupal::config('cirqular_emails.settings');
+  $module_path = \Drupal::service('extension.list.module')->getPath('cirqular_emails');
+
+  $message['params']['colors'] = $config->get('colors') ?? [];
+  $message['params']['registered_name'] = $config->get('registered_name') ?? '';
+  $message['params']['module_path'] = $module_path;
+
+  // Set the logo URL, falling back to the default asset if none is uploaded.
+  $logo_url = '';
+  $logo_fids = $config->get('logo');
+  if (!empty($logo_fids[0]) && $file = File::load($logo_fids[0])) {
+    // A logo has been uploaded, so we use it.
+    $file_url_generator = \Drupal::service('file_url_generator');
+    $logo_url = $file_url_generator->generateAbsoluteString($file->getFileUri());
+  }
+  else {
+    // No logo uploaded, use the default from our module's 'assets' folder.
+    $default_logo_path = $module_path . '/assets/default-logo.svg';
+    if (file_exists($default_logo_path)) {
+       $logo_url = \Drupal::service('file_url_generator')->generateAbsoluteString($default_logo_path);
+    }
+  }
+  $message['params']['logo_url'] = $logo_url;
+
+  // --- 2. Email-Specific Overrides ---
+  // Route the email to the appropriate helper function based on its ID.
+  switch ($message['id']) {
+    case 'update_status_notify':
+      _cirqular_emails_override_update_email($message);
+      break;
+    case 'tfa_tfa_enabled_configuration':
+      _cirqular_emails_override_user_email($message, 'tfa_enabled', 'cirqular_tfa_enabled_email');
+      break;
+    case 'tfa_tfa_disabled_configuration':
+      _cirqular_emails_override_user_email($message, 'tfa_disabled', 'cirqular_tfa_disabled_email');
+      break;
+    case 'user_password_reset':
+      _cirqular_emails_override_user_email($message, 'password_recovery', 'cirqular_password_recovery');
+      break;
+    case 'user_register_admin_created':
+       _cirqular_emails_override_user_email($message, 'welcome_admin_created', 'cirqular_welcome_admin_created');
+      break;
+    case 'user_register_pending_approval':
+       _cirqular_emails_override_user_email($message, 'welcome_awaiting_approval', 'cirqular_welcome_awaiting_approval');
+      break;
+    case 'user_register_pending_approval_admin':
+       _cirqular_emails_override_user_email($message, 'admin_user_awaiting_approval', 'cirqular_admin_user_awaiting_approval');
+      break;
+    case 'user_register_no_approval_required':
+       _cirqular_emails_override_user_email($message, 'welcome_no_approval', 'cirqular_welcome_no_approval');
+      break;
+    case 'user_status_activated':
+       _cirqular_emails_override_user_email($message, 'account_activated', 'cirqular_account_activated');
+      break;
+    case 'user_status_blocked':
+       _cirqular_emails_override_user_email($message, 'account_suspended', 'cirqular_account_suspended');
+      break;
+    case 'user_cancel_confirm':
+       _cirqular_emails_override_user_email($message, 'account_cancellation_confirm', 'cirqular_account_cancellation_confirm');
+      break;
+    case 'user_status_canceled':
+       _cirqular_emails_override_user_email($message, 'account_canceled', 'cirqular_account_canceled');
+      break;
+  }
+}
+
+/**
+ * Helper function to override the Update Notification email.
+ *
+ * @param array $message
+ * The email message array, passed by reference.
+ */
+function _cirqular_emails_override_update_email(array &$message) {
+  $config = \Drupal::config('cirqular_emails.settings');
+  $email_settings = $config->get('email_settings');
+  $token_service = \Drupal::token();
+
+  $update_settings = $email_settings['update_notification'] ?? [];
+  $raw_subject = $update_settings['subject'] ?? '';
+  $raw_preview = $update_settings['preview_text'] ?? '';
+  $processed_subject = $token_service->replace($raw_subject);
+  $processed_preview = $token_service->replace($raw_preview);
+
+  // Fetch and filter available project updates.
+  $projects = update_get_available(TRUE);
+  $all_project_data = update_calculate_project_data($projects);
+  $updates_with_new_versions = [];
+  foreach ($all_project_data as $project_name => $project_data) {
+    if (version_compare($project_data['latest_version'], $project_data['existing_version'], '>')) {
+      // Filter out pre-release versions unless the current version is also a pre-release.
+      $is_current_stable = !preg_match('/-(alpha|beta|rc)/i', $project_data['existing_version']);
+      $is_latest_stable = !preg_match('/-(alpha|beta|rc)/i', $project_data['latest_version']);
+      if ($is_latest_stable || !$is_current_stable) {
+        $updates_with_new_versions[$project_name] = $project_data;
+      }
+    }
+  }
+
+  // Do not send the email if the filtered list of updates is empty.
+  if (empty($updates_with_new_versions)) {
+    $message['send'] = FALSE;
+    return;
+  }
+
+  // Build the render array for the Twig template.
+  $build = [
+    '#theme' => 'cirqular_update_email',
+    '#updates' => $updates_with_new_versions,
+    '#site_name' => \Drupal::config('system.site')->get('name'),
+    '#site_url' => \Drupal::service('url_generator')->generateFromRoute('<front>', [], ['absolute' => TRUE]),
+    '#update_report_url' => \Drupal::service('url_generator')->generateFromRoute('update.status', [], ['absolute' => TRUE]),
+    '#colors' => $message['params']['colors'] ?? [],
+    '#logo_url' => $message['params']['logo_url'] ?? '',
+    '#registered_name' => $message['params']['registered_name'] ?? '',
+    '#preview_text' => $processed_preview,
+    '#module_path' => $message['params']['module_path'] ?? '',
+    '#subject' => $processed_subject,
+  ];
+
+  $renderer = \Drupal::service('renderer');
+  $rendered_body = $renderer->executeInRenderContext(new RenderContext(), function() use (&$build) {
+      return \Drupal::service('renderer')->render($build);
+  });
+
+  // Replace the original email content with the rendered template.
+  $message['subject'] = $processed_subject;
+  $message['body'] = [];
+  $message['body'][] = Markup::create($rendered_body);
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8;';
+}
+
+/**
+ * Helper function to override all user-related emails (TFA and Account).
+ *
+ * @param array $message
+ * The email message array, passed by reference.
+ * @param string $config_key
+ * The key for this email's settings in the configuration.
+ * @param string $theme_key
+ * The theme hook for this email's Twig template.
+ */
+function _cirqular_emails_override_user_email(array &$message, $config_key, $theme_key) {
+  $account = $message['params']['account'] ?? NULL;
+  if (!$account instanceof UserInterface) {
+    return;
+  }
+
+  // Extract the special one-time URLs from the original email body. This is the
+  // most reliable way to ensure the secure, hashed links are correct.
+  $original_body = is_array($message['body']) ? implode("\n", $message['body']) : (string) $message['body'];
+  $one_time_login_url = '';
+  $cancel_url = '';
+  $edit_url = $account->toUrl('edit-form', ['absolute' => TRUE])->toString();
+
+  // Use regex to find the one-time login URL.
+  if (preg_match('/(http[s]?:\/\/[^\s]+user\/reset\/[^\s]+)/', $original_body, $matches)) {
+    $one_time_login_url = $matches[0];
+  }
+  // Use regex to find the cancellation URL.
+  if (preg_match('/(http[s]?:\/\/[^\s]+user\/' . $account->id() . '\/cancel\/[^\s]+)/', $original_body, $matches)) {
+    $cancel_url = $matches[0];
+  }
+
+  $config = \Drupal::config('cirqular_emails.settings');
+  $email_settings = $config->get('email_settings');
+  $token_service = \Drupal::token();
+
+  $user_email_settings = $email_settings[$config_key] ?? [];
+  $raw_subject = $user_email_settings['subject'] ?? '';
+  $raw_preview = $user_email_settings['preview_text'] ?? '';
+
+  // Replace tokens in the subject and preview text.
+  $token_data = ['user' => $account];
+  $processed_subject = $token_service->replace($raw_subject, $token_data);
+  $processed_preview = $token_service->replace($raw_preview, $token_data);
+
+  // Build the render array for the Twig template.
+  $build = [
+    '#theme' => $theme_key,
+    '#account' => $account,
+    '#site_name' => \Drupal::config('system.site')->get('name'),
+    '#site_url' => \Drupal::service('url_generator')->generateFromRoute('<front>', [], ['absolute' => TRUE]),
+    '#colors' => $message['params']['colors'] ?? [],
+    '#logo_url' => $message['params']['logo_url'] ?? '',
+    '#registered_name' => $message['params']['registered_name'] ?? '',
+    '#preview_text' => $processed_preview,
+    '#module_path' => $message['params']['module_path'] ?? '',
+    '#subject' => $processed_subject,
+    '#one_time_login_url' => $one_time_login_url,
+    '#cancel_url' => $cancel_url,
+    '#edit_url' => $edit_url,
+  ];
+
+  $renderer = \Drupal::service('renderer');
+  $rendered_body = $renderer->executeInRenderContext(new RenderContext(), function() use (&$build) {
+      return \Drupal::service('renderer')->render($build);
+  });
+
+  // Replace the original email content with the rendered template.
+  $message['subject'] = $processed_subject;
+  $message['body'] = [];
+  $message['body'][] = Markup::create($rendered_body);
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8;';
+}
+
+
+/**
+ * Implements hook_theme().
+ *
+ * Registers all custom email templates with Drupal's theme system.
+ */
+function cirqular_emails_theme($existing, $type, $theme, $path) {
+  $default_vars = [
+    'updates' => [],
+    'account' => NULL,
+    'site_name' => NULL,
+    'site_url' => NULL,
+    'update_report_url' => NULL,
+    'colors' => [],
+    'logo_url' => NULL,
+    'registered_name' => NULL,
+    'preview_text' => NULL,
+    'module_path' => NULL,
+    'subject' => NULL,
+    'one_time_login_url' => NULL,
+    'cancel_url' => NULL,
+    'edit_url' => NULL,
+  ];
+
+  return [
+    // System Emails
+    'cirqular_update_email' => ['variables' => $default_vars, 'path' => $path . '/templates/system', 'template' => 'cirqular-update-email'],
+    // TFA Emails
+    'cirqular_tfa_enabled_email' => ['variables' => $default_vars, 'path' => $path . '/templates/tfa', 'template' => 'cirqular-tfa-enabled-email'],
+    'cirqular_tfa_disabled_email' => ['variables' => $default_vars, 'path' => $path . '/templates/tfa', 'template' => 'cirqular-tfa-disabled-email'],
+    // Account Emails
+    'cirqular_password_recovery' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-password-recovery'],
+    'cirqular_welcome_admin_created' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-welcome-admin-created'],
+    'cirqular_welcome_awaiting_approval' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-welcome-awaiting-approval'],
+    'cirqular_admin_user_awaiting_approval' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-admin-user-awaiting-approval'],
+    'cirqular_welcome_no_approval' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-welcome-no-approval'],
+    'cirqular_account_activated' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-account-activated'],
+    'cirqular_account_suspended' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-account-suspended'],
+    'cirqular_account_cancellation_confirm' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-account-cancellation-confirm'],
+    'cirqular_account_canceled' => ['variables' => $default_vars, 'path' => $path . '/templates/accounts', 'template' => 'cirqular-account-canceled'],
+  ];
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Adds a status message to core forms that our module overrides.
+ */
+function cirqular_emails_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $messenger = \Drupal::messenger();
+  $url = \Drupal\Core\Url::fromRoute('cirqular_emails.settings_form');
+  $link = \Drupal\Core\Link::fromTextAndUrl(t('Click here to configure the email templates.'), $url)->toString();
+
+  // Add a notice to the main user account settings page.
+  if ($form_id === 'user_admin_settings') {
+    $messenger->addWarning(t('The user account email templates are being overridden by the Cirqular Emails module. @link', ['@link' => $link]));
+  }
+
+  // Add a notice to the main TFA settings page.
+  if ($form_id === 'tfa_settings_form') {
+    $messenger->addWarning(t('The TFA notification email templates are being overridden by the Cirqular Emails module. @link', ['@link' => $link]));
+  }
+}

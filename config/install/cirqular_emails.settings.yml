@@ -1,0 +1,81 @@
+#
+# Default settings for the Cirqular Emails module.
+#
+# These values are loaded into the site's active configuration the first time
+# the module is installed. They provide a sensible, working baseline.
+#
+
+# The File ID (fid) of the uploaded logo. It is empty by default, so the
+# module will use the fallback logo in its assets/ directory.
+logo: []
+
+# A placeholder for the client's registered company name for legal text.
+registered_name: 'Your Company (Pty) Ltd'
+
+# The default color palette for all email templates.
+colors:
+  # Primary brand colors used for main elements like headers and buttons.
+  primary_light: '#DAE5ED'
+  primary_regular: '#236192'
+  primary_dark: '#123149'
+
+  # Secondary (accent) brand colors.
+  alternate_light: '#EEDAE6'
+  alternate_regular: '#991E66'
+  alternate_dark: '#4D0F33'
+
+  # Standard text colors.
+  text_light: '#B0B4B8'
+  text_regular: '#3A444D'
+  text_dark: '#131E29'
+
+  # Standard system colors for UI feedback (e.g., warnings, success).
+  system_white: '#FFFFFF'
+  system_blue: '#4F8EFF'
+  system_green: '#439F44'
+  system_yellow: '#FFC107'
+  system_orange: '#FD9702'
+  system_red: '#D94B31'
+
+# Default subject lines and inbox preview text for each email override.
+# These use tokens that will be replaced with dynamic values when sent.
+email_settings:
+  # System Emails
+  update_notification:
+    subject: '[UPDATE] Level Up! New Power-Ups & Patches for [site:name]!'
+    preview_text: "Get ready for an upgrade! We've dropped some sweet security patches & performance boosts."
+  # TFA Emails
+  tfa_enabled:
+    subject: '[SECURITY] Security Level Up! 2FA Activated for [site:name]'
+    preview_text: "You're officially a security pro! Two-Factor Authentication is now active on your account."
+  tfa_disabled:
+    subject: '[IMPORTANT] Security Heads Up! 2FA Disabled for Your [site:name] Account'
+    preview_text: "Warning! Your account's 2FA just powered down. Re-enable it within 3 logins to stay safe."
+  # Account Emails
+  password_recovery:
+    subject: '[ALERT] Did you forget your password for [site:name]?'
+    preview_text: "Someone (maybe you!) just asked to reset your password. Let's get you back in!"
+  welcome_admin_created:
+    subject: "[WELCOME] You're In! Your New [site:name] Account is Ready to Rock!"
+    preview_text: "Welcome to the fam! An admin just hooked you up with an account on [site:name]."
+  welcome_awaiting_approval:
+    subject: '[PENDING] Almost There! Your [site:name] Application is Under Review'
+    preview_text: "Got your application! It's currently being reviewed by our team. Hang tight!"
+  admin_user_awaiting_approval:
+    subject: '[ACTION REQUIRED] Ping! New User Awaiting Your Approval on [site:name]'
+    preview_text: 'Alert: [user:display-name] has applied for an account and is ready for your go-ahead.'
+  welcome_no_approval:
+    subject: "[WELCOME] You're In! Your [site:name] Account is Ready to Roll!"
+    preview_text: 'Awesome! Thanks for registering. Your [site:name] account is ready, with all the details you need.'
+  account_activated:
+    subject: '[ACTIVATED] Ready for Action! Your [site:name] Account is Activated!'
+    preview_text: 'Good news! Your account is active. Log in now and dive into [site:name].'
+  account_suspended:
+    subject: '[SUSPENDED] Digital Time-Out: Your [site:name] Account is Suspended'
+    preview_text: 'Notification: Your account has been temporarily suspended. Further info in this email.'
+  account_cancellation_confirm:
+    subject: '[ACTION REQUIRED] Last Call: Confirm Account Cancellation for [site:name]'
+    preview_text: 'You asked to cancel your account. One more click to confirm and say goodbye to [site:name].'
+  account_canceled:
+    subject: '[CANCELED] Your [site:name] Account Has Been Closed'
+    preview_text: 'Notification: Your account on [site:name] is no longer active.'

@@ -1,0 +1,158 @@
+{#
+  ** FILE: /web/modules/custom/cirqular_emails/templates/cirqular-update-email.html.twig
+#}
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="x-apple-disable-message-reformatting">
+        <title>{{ subject }}</title>
+        <style>
+            html, body { margin: 0 auto !important; padding: 0 !important; height: 100% !important; width: 100% !important; background: {{ colors.system_white }}; font-family: Arial, sans-serif; }
+            * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+            table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; }
+            table { border-spacing: 0 !important; border-collapse: collapse !important; table-layout: fixed !important; margin: 0 auto !important; }
+            img { -ms-interpolation-mode:bicubic; }
+            a { text-decoration: none; }
+            .update-table { width: 100%; margin-bottom: 30px; border-radius: 8px; border-collapse: separate !important; border-spacing: 0; overflow: hidden; }
+            .update-table th, .update-table td { padding: 12px 15px; text-align: left; border: 1px solid {{ colors.system_white }}; }
+            .update-table th { background-color: {{ colors.primary_regular }}; color: {{ colors.system_white }}; font-weight: bold; font-size: 16px; }
+            .update-table td { background-color: {{ colors.primary_light }}; }
+        </style>
+    </head>
+    <body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: {{ colors.primary_light }};">
+        <!-- PREVIEW TEXT -->
+        <div style="display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
+            {{ preview_text }}
+        </div>
+        <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: {{ colors.primary_light }};">
+            <div style="max-width: 750px; margin: 0 auto;">
+                <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
+                    <!-- LOGO HEADER -->
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="left" valign="middle">
+                                        <a href="{{ site_url }}" target="_blank">
+                                            <img src="{{ logo_url }}" height="50" width="auto" alt="{{ site_name }} Logo" border="0" style="display: block; height: 50px;">
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- MAIN CONTENT -->
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <!-- EMAIL HEADER -->
+                            <div>
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background: linear-gradient(to bottom, {{ colors.primary_dark }} 0%, {{ colors.primary_regular }} 100%); border-radius: 24px 24px 0 0;">
+                                    <tr>
+                                        <td style="padding: 40px;">
+                                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                <tr>
+                                                    <!-- Icon Column -->
+                                                    <td width="100" valign="middle" style="width: 100px; text-align: center;">
+                                                        <!-- FIX: Construct the full URL to the asset -->
+                                                        <img src="{{ site_url ~ module_path }}/assets/icons/update.svg" width="100" height="100" alt="Update Icon" border="0" style="width: 100px; height: 100px; max-width: 100px;">
+                                                    </td>
+                                                    <!-- Spacer Column -->
+                                                    <td width="40" style="width: 40px;">&nbsp;</td>
+                                                    <!-- Text Column -->
+                                                    <td valign="middle">
+                                                        <!-- FIX: Use the subject variable -->
+                                                        <h1 style="margin: 0; font-family: Arial, sans-serif; font-size: 26px; line-height: 34px; color: {{ colors.system_white }}; font-weight: bold;">{{ subject }}</h1>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <!-- EMAIL BODY -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="background-color: {{ colors.system_white }}; border-radius: 0 0 24px 24px; padding: 40px;">
+                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td style="font-family: Arial, sans-serif; font-size: 15px; line-height: 24px; color: {{ colors.text_dark }}; text-align: left;">
+                                                    <p style="margin: 0 0 20px 0;">Greetings,</p>
+                                                    <p style="margin: 0 0 20px 0;">Good news! Our system has detected that your website, <strong>{{ site_name }}</strong>, is ready to level up. New updates have dropped, bringing fresh security patches and performance boosts.</p>
+                                                    <p style="margin: 0 0 30px 0;">Here is your loot list:</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table class="update-table" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="50%">Module / System</th>
+                                                                <th width="25%">Current Version</th>
+                                                                <th width="25%">New Version</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for update in updates %}
+                                                                <tr>
+                                                                    <td><a href="{{ update.link }}" target="_blank" style="color: {{ colors.primary_regular }}; text-decoration: underline;">{{ update.name }}</a></td>
+                                                                    <td>{{ update.existing_version }}</td>
+                                                                    <td><strong><a href="{{ update.link }}/releases/{{ update.latest_version }}" target="_blank" style="color: {{ colors.primary_regular }}; text-decoration: underline;">{{ update.latest_version }}</a></strong></td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-top: 30px; padding-bottom: 40px;">
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td align="center">
+                                                                <div><a href="{{ update_report_url }}"
+                                                                        style="background-color:{{ colors.primary_regular }};border:1px solid {{ colors.primary_regular }};border-radius:8px;color:{{ colors.system_white }};display:inline-block;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;padding: 19px 40px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;mso-hide:all;">View full update report</a></div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-family: Arial, sans-serif; font-size: 15px; line-height: 22px; color: {{ colors.text_dark }}; text-align: left;">
+                                                    <p style="margin: 0 0 20px 0;">Install these power-ups soon to make sure your site stays ahead of the game!</p>
+                                                    <p style="margin: 0;">Cheers,<br>The {{ site_name }} Team</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                               <tr>
+                                    <!-- Left Footer Column -->
+                                    <td valign="middle" style="font-family: Arial, sans-serif; font-size: 10px; line-height: 14px; color: {{ colors.text_regular }}; text-align: left;">
+                                         <p style="margin: 0 0 10px 0;">&copy; {{ "now"|date("Y") }} • {{ registered_name }} • All rights reserved.</p>
+                                         <p style="margin: 0;">This document was automatically generated as a result of an action taken on the {{ site_name }} website, and as such is bound by the terms and conditions of use, viewable on our <a href="{{ site_url }}legal/terms" target="_blank" style="color: {{ colors.text_regular }}; text-decoration: underline;">Terms and Conditions</a> page.</p>
+                                    </td>
+                                    <!-- Right Footer Column -->
+                                    <td width="150" align="right" valign="middle" style="width: 150px;">
+                                        <a href="https://altitudemedia.co.za" target="_blank">
+                                            <!-- FIX: Construct the full URL to the asset -->
+                                            <img src="{{ site_url ~ module_path }}/assets/logos/altitude.svg" height="30" width="auto" alt="Altitude Media Logo" border="0" style="display: block; height: 30px;">
+                                        </a>
+                                    </td>
+                               </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </center>
+    </body>
+</html>
