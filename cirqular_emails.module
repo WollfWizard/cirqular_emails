@@ -28,6 +28,8 @@ function cirqular_emails_mail_alter(array &$message) {
 
   $message['params']['colors'] = $config->get('colors') ?? [];
   $message['params']['registered_name'] = $config->get('registered_name') ?? '';
+  // --- ADDITION: Pass the raw footer text into the parameters ---
+  $message['params']['footer_text'] = $config->get('footer_text') ?? '';
   $message['params']['module_path'] = $module_path;
 
   // Set the logo URL, falling back to the default asset if none is uploaded.
@@ -42,7 +44,7 @@ function cirqular_emails_mail_alter(array &$message) {
     // No logo uploaded, use the default from our module's 'assets' folder.
     $default_logo_path = $module_path . '/assets/default-logo.svg';
     if (file_exists($default_logo_path)) {
-       $logo_url = \Drupal::service('file_url_generator')->generateAbsoluteString($default_logo_path);
+        $logo_url = \Drupal::service('file_url_generator')->generateAbsoluteString($default_logo_path);
     }
   }
   $message['params']['logo_url'] = $logo_url;
@@ -106,6 +108,10 @@ function _cirqular_emails_override_update_email(array &$message) {
   $processed_subject = $token_service->replace($raw_subject);
   $processed_preview = $token_service->replace($raw_preview);
 
+  // --- ADDITION: Process tokens for the footer text. ---
+  $raw_footer = $message['params']['footer_text'] ?? '';
+  $processed_footer = $token_service->replace($raw_footer);
+
   // Fetch and filter available project updates.
   $projects = update_get_available(TRUE);
   $all_project_data = update_calculate_project_data($projects);
@@ -137,6 +143,8 @@ function _cirqular_emails_override_update_email(array &$message) {
     '#colors' => $message['params']['colors'] ?? [],
     '#logo_url' => $message['params']['logo_url'] ?? '',
     '#registered_name' => $message['params']['registered_name'] ?? '',
+    // --- ADDITION: Pass the processed footer text to the template. ---
+    '#footer_text' => $processed_footer,
     '#preview_text' => $processed_preview,
     '#module_path' => $message['params']['module_path'] ?? '',
     '#subject' => $processed_subject,
@@ -199,6 +207,10 @@ function _cirqular_emails_override_user_email(array &$message, $config_key, $the
   $processed_subject = $token_service->replace($raw_subject, $token_data);
   $processed_preview = $token_service->replace($raw_preview, $token_data);
 
+  // --- ADDITION: Process user-specific tokens for the footer text. ---
+  $raw_footer = $message['params']['footer_text'] ?? '';
+  $processed_footer = $token_service->replace($raw_footer, $token_data);
+
   // Build the render array for the Twig template.
   $build = [
     '#theme' => $theme_key,
@@ -208,6 +220,8 @@ function _cirqular_emails_override_user_email(array &$message, $config_key, $the
     '#colors' => $message['params']['colors'] ?? [],
     '#logo_url' => $message['params']['logo_url'] ?? '',
     '#registered_name' => $message['params']['registered_name'] ?? '',
+    // --- ADDITION: Pass the processed footer text to the template. ---
+    '#footer_text' => $processed_footer,
     '#preview_text' => $processed_preview,
     '#module_path' => $message['params']['module_path'] ?? '',
     '#subject' => $processed_subject,
@@ -244,6 +258,8 @@ function cirqular_emails_theme($existing, $type, $theme, $path) {
     'colors' => [],
     'logo_url' => NULL,
     'registered_name' => NULL,
+    // --- ADDITION: Register the new variable for the theme system. ---
+    'footer_text' => NULL,
     'preview_text' => NULL,
     'module_path' => NULL,
     'subject' => NULL,

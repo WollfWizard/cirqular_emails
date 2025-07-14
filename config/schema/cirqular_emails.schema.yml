@@ -18,6 +18,9 @@ cirqular_emails.settings:
     registered_name:
       type: string
       label: 'Registered Name'
+    footer_text:
+      type: text
+      label: 'Footer Legal Text'
     # Defines the color palette available to all email templates.
     colors:
       type: mapping

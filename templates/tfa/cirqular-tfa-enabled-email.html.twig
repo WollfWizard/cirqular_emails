@@ -118,7 +118,8 @@
                                <tr>
                                     <td valign="middle" style="font-family: Arial, sans-serif; font-size: 10px; line-height: 14px; color: {{ colors.text_regular }}; text-align: left;">
                                          <p style="margin: 0 0 10px 0;">&copy; {{ "now"|date("Y") }} • {{ registered_name }} • All rights reserved.</p>
-                                         <p style="margin: 0;">This document was automatically generated as a result of an action taken on the {{ site_name }} website, and as such is bound by the terms and conditions of use, viewable on our <a href="{{ site_url }}legal/terms" target="_blank" style="color: {{ colors.text_regular }}; text-decoration: underline;">Terms and Conditions</a> page.</p>
+                                         {% set link_style = 'color: ' ~ colors.text_regular ~ '; text-decoration: underline;' %}
+                                         <p style="margin: 0;">{{ footer_text|replace({'##FOOTER_LINK_STYLE##': link_style})|raw }}</p>
                                     </td>
                                     <td width="150" align="right" valign="middle" style="width: 150px;">
                                         <a href="https://altitudemedia.co.za" target="_blank">

@@ -11,6 +11,7 @@ logo: []
 
 # A placeholder for the client's registered company name for legal text.
 registered_name: 'Your Company (Pty) Ltd'
+footer_text: 'This document was automatically generated as a result of an action taken on the [site:name] website, and as such is bound by the terms and conditions of use, viewable on our <a href="[site:url]legal/terms" target="_blank" style="##FOOTER_LINK_STYLE##">Terms and Conditions</a> page.'
 
 # The default color palette for all email templates.
 colors:
