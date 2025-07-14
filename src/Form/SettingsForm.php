@@ -98,6 +98,7 @@ class SettingsForm extends ConfigFormBase {
           '#type' => 'details',
           '#title' => $this->t($details['title']),
           '#group' => 'email_tabs',
+          '#tree' => TRUE,
         ];
         $form[$id]['subject'] = [
           '#type' => 'textfield',
