@@ -4,4 +4,4 @@ description: 'Provides a central UI to manage email branding and overrides core 
 core_version_requirement: ^10 || ^11
 package: 'Cirqular 5'
 configure: cirqular_emails.settings_form
-version: '1.1.1'
+version: '1.1.2'

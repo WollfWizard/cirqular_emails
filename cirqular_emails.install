@@ -6,21 +6,42 @@
  */
 
 /**
- * Populates the new footer_text configuration setting.
+ * Ensures all default configuration keys exist.
+ *
+ * This is a robust update to handle cases where an existing installation may be
+ * missing multiple configuration keys after a module update.
  */
-function cirqular_emails_update_10101() {
-  // Get the default settings from the module's config file to find the
-  // default value for the new 'footer_text' key.
+function cirqular_emails_update_10102() {
+  // Get the default settings from the module's config file.
   $default_config = \Drupal::config('cirqular_emails.settings');
 
   // Load the editable configuration for the site.
   $config = \Drupal::configFactory()->getEditable('cirqular_emails.settings');
 
-  // Check if the new footer_text setting exists. If not, add it from the
-  // module's default configuration. This protects existing user settings.
-  if ($config->get('footer_text') === NULL) {
-    $config->set('footer_text', $default_config->get('footer_text'));
+  // A flag to track if we made any changes.
+  $config_updated = FALSE;
+
+  // List of top-level keys to check.
+  $keys_to_check = [
+    'logo',
+    'registered_name',
+    'footer_text',
+    'colors',
+    'email_settings',
+  ];
+
+  foreach ($keys_to_check as $key) {
+    // Check if the key is missing from the live configuration.
+    if ($config->get($key) === NULL) {
+      // If it's missing, set it from the module's default config file.
+      $config->set($key, $default_config->get($key));
+      $config_updated = TRUE;
+    }
+  }
+
+  // Only save the configuration if we actually made a change.
+  if ($config_updated) {
     $config->save(TRUE);
-    return t('Cirqular Emails: Default value for the new footer_text setting has been added.');
+    return t('Cirqular Emails: Missing default configuration has been added.');
   }
 }

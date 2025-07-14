@@ -112,8 +112,8 @@ class SettingsForm extends ConfigFormBase {
       }
     }
 
-    $brand_colors = $form_state->getValue(['brand_colors', 'grid']);
-    $system_colors = $form_state->getValue(['system_colors', 'grid']);
+    $brand_colors = $form_state->getValue(['brand_colors', 'grid']) ?? [];
+    $system_colors = $form_state->getValue(['system_colors', 'grid']) ?? [];
     $all_colors = array_merge($brand_colors, $system_colors);
 
     $email_settings = [
