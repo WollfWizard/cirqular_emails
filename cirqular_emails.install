@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Cirqular Emails module.
+ */
+
+/**
+ * Populates the new footer_text configuration setting.
+ */
+function cirqular_emails_update_10101() {
+  // Get the default settings from the module's config file to find the
+  // default value for the new 'footer_text' key.
+  $default_config = \Drupal::config('cirqular_emails.settings');
+
+  // Load the editable configuration for the site.
+  $config = \Drupal::configFactory()->getEditable('cirqular_emails.settings');
+
+  // Check if the new footer_text setting exists. If not, add it from the
+  // module's default configuration. This protects existing user settings.
+  if ($config->get('footer_text') === NULL) {
+    $config->set('footer_text', $default_config->get('footer_text'));
+    $config->save(TRUE);
+    return t('Cirqular Emails: Default value for the new footer_text setting has been added.');
+  }
+}
